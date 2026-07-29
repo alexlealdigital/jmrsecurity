@@ -1,0 +1,173 @@
+<!-- ============================================ -->
+<!-- RANKING / GAMIFICAÇÃO - src/pages/ranking.html -->
+<!-- ============================================ -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ranking - JMR Security</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <style>
+    .gam-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 22px; margin-bottom: 28px; }
+    @media (max-width: 1000px) { .gam-grid { grid-template-columns: 1fr; } }
+
+    /* Card do meu perfil de gamificação */
+    .me-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 26px; position: relative; overflow: hidden; }
+    .me-card::after { content: ''; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(0,255,65,0.14), transparent 70%); }
+    .me-top { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+    .me-avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--green-subtle); border: 1px solid var(--green-dark); display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; color: var(--green); }
+    .me-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: var(--text-primary); }
+    .me-rank { font-size: 0.85rem; margin-top: 2px; }
+    .me-lv-top { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+    .me-lv-bar { height: 10px; background: var(--surface-3); border-radius: 999px; overflow: hidden; margin-bottom: 22px; }
+    .me-lv-fill { height: 100%; background: var(--green); border-radius: 999px; box-shadow: 0 0 12px rgba(0,255,65,0.4); transition: width 0.7s ease; }
+    .me-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .me-stat { text-align: center; padding: 14px 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); }
+    .me-stat .v { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--text-primary); }
+    .me-stat .l { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* Leaderboard */
+    .lb-row { display: flex; align-items: center; gap: 14px; padding: 13px 8px; border-bottom: 1px solid var(--border); }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row.me { background: var(--green-subtle); border-radius: var(--radius-md); box-shadow: inset 3px 0 0 var(--green); }
+    .lb-pos { width: 26px; text-align: center; font-family: var(--font-display); font-weight: 800; color: var(--text-muted); }
+    .lb-avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name { font-size: 0.95rem; color: var(--text-secondary); font-weight: 500; }
+    .lb-row.me .lb-name { color: var(--text-primary); font-weight: 700; }
+    .lb-sub { font-size: 0.75rem; color: var(--text-muted); }
+    .lb-xp { font-family: var(--font-display); font-weight: 800; color: var(--green); font-size: 0.95rem; white-space: nowrap; }
+
+    /* Conquistas */
+    .badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    .badge-tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 14px; text-align: center; transition: all var(--transition); }
+    .badge-tile.locked { opacity: 0.4; filter: grayscale(1); }
+    .badge-tile .emoji { font-size: 2rem; }
+    .badge-tile .bt-name { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-top: 8px; }
+    .badge-tile .bt-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">JMR <span>Security</span></div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="empresas.html">Gestão de Empresas</a></li>
+          <li><a href="meus-cursos.html">Meus Cursos</a></li>
+          <li><a href="colaboradores.html">Colaboradores</a></li>
+          <li><a href="relatorios.html">Relatórios</a></li>
+          <li><a href="avaliacao.html">Avaliação</a></li>
+          <li><a href="ranking.html" class="active">Ranking</a></li>
+          <li><a href="configuracoes.html">Configurações</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="logout-btn-sidebar">Sair da conta</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Ranking &amp; Conquistas</h1>
+          <p>Acompanhe seu progresso, XP e posição entre os colegas.</p>
+        </div>
+        <a href="avaliacao.html" class="btn-app primary">Fazer avaliação</a>
+      </div>
+
+      <div class="gam-grid">
+        <!-- Meu perfil de gamificação -->
+        <div class="me-card">
+          <div class="me-top">
+            <div class="me-avatar" id="me-avatar">—</div>
+            <div>
+              <div class="me-name" id="me-name">Colaborador(a)</div>
+              <div class="me-rank" id="me-rank">Nível 1 · Aprendiz</div>
+            </div>
+          </div>
+          <div class="me-lv-top">
+            <span id="me-xp">0 XP</span>
+            <span id="me-tonext">— para o próximo nível</span>
+          </div>
+          <div class="me-lv-bar"><div class="me-lv-fill" id="me-lv-fill" style="width:0%"></div></div>
+          <div class="me-stats">
+            <div class="me-stat"><div class="v" id="me-streak">0</div><div class="l">SEQUÊNCIA (DIAS)</div></div>
+            <div class="me-stat"><div class="v" id="me-quizzes">0</div><div class="l">AVALIAÇÕES</div></div>
+            <div class="me-stat"><div class="v" id="me-badges">0</div><div class="l">CONQUISTAS</div></div>
+          </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Ranking da empresa</span></div>
+          <div id="leaderboard"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Minhas conquistas</span></div>
+        <div class="badges-grid" id="badges-grid"></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { requireAuth, logout, getProfile } from '../js/auth/session.js'
+    import { getState, getRanking, levelFromXp, BADGES } from '../js/services/gamification.js'
+
+    await requireAuth()
+    document.getElementById('logout-btn').onclick = logout
+
+    const profile = await getProfile()
+    const meName = profile?.full_name || profile?.name || profile?.nome || profile?.email?.split('@')[0] || 'Você'
+    const initials = meName.trim().split(/\s+/).map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+
+    const s = getState()
+
+    // Meu card
+    document.getElementById('me-avatar').textContent = initials
+    document.getElementById('me-name').textContent = meName
+    document.getElementById('me-rank').innerHTML = `Nível ${s.level} · <span style="color:${s.rank.color}">${s.rank.label}</span>`
+    document.getElementById('me-xp').textContent = `${s.xp} XP`
+    document.getElementById('me-tonext').textContent = `${s.toNext} XP para o nível ${s.level + 1}`
+    document.getElementById('me-lv-fill').style.width = `${s.levelPct}%`
+    document.getElementById('me-streak').textContent = s.streak
+    document.getElementById('me-quizzes').textContent = s.quizzesCompleted || 0
+    document.getElementById('me-badges').textContent = (s.badges || []).length
+
+    // Leaderboard
+    const lb = document.getElementById('leaderboard')
+    const rows = await getRanking(meName)
+    const medal = ['#FBBF24', '#9CA3AF', '#B45309']
+    lb.innerHTML = rows.map((r) => {
+      const isMe = r.isMe || r.nome === meName
+      const av = r.nome.trim().split(/\s+/).map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+      return `
+        <div class="lb-row ${isMe ? 'me' : ''}">
+          <span class="lb-pos" style="color:${medal[r.pos - 1] || 'var(--text-muted)'}">${r.pos}</span>
+          <div class="lb-avatar" style="background:${isMe ? 'var(--green)' : 'var(--green-subtle)'};color:${isMe ? '#04210b' : 'var(--green)'};border:1px solid var(--green-dark)">${av}</div>
+          <div class="lb-info">
+            <div class="lb-name">${r.nome}${isMe ? ' (você)' : ''}</div>
+            <div class="lb-sub" style="color:${r.rank.color}">Nível ${r.level} · ${r.rank.label}</div>
+          </div>
+          <span class="lb-xp">${r.xp} XP</span>
+        </div>`
+    }).join('')
+
+    // Conquistas
+    const have = new Set(s.badges || [])
+    document.getElementById('badges-grid').innerHTML = BADGES.map((b) => `
+      <div class="badge-tile ${have.has(b.id) ? '' : 'locked'}">
+        <div class="emoji">${b.icon}</div>
+        <div class="bt-name">${b.nome}</div>
+        <div class="bt-desc">${b.desc}</div>
+      </div>`).join('')
+  </script>
+</body>
+</html>

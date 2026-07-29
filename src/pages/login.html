@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JMR Tecnologia — Login</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    /* ── Layout login ─────────────────────────────────────── */
+    .login-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── Painel esquerdo — branding ──────────────────────── */
+    .login-brand {
+      background: var(--surface-1);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Grade decorativa de fundo */
+    .login-brand::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    /* Glow verde no canto */
+    .login-brand::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -80px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(0,255,65,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .brand-logo {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-mark {
+      width: 40px; height: 40px;
+      background: var(--green);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 800;
+      color: #000;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .brand-logo-text {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .brand-logo-sub {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-faint);
+      letter-spacing: 0.05em;
+    }
+
+    .brand-hero {
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-headline {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .brand-headline span {
+      color: var(--green);
+    }
+
+    .brand-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 380px;
+    }
+
+    .brand-stats {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 32px;
+    }
+
+    .brand-stat-value {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .brand-stat-label {
+      font-size: 12px;
+      color: var(--text-faint);
+      margin-top: 2px;
+    }
+
+    /* ── Painel direito — formulário ─────────────────────── */
+    .login-form-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      background: var(--black);
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 400px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .login-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      font-size: 14px;
+      color: var(--text-faint);
+      margin-bottom: 36px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-faint);
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .login-form .form-input {
+      padding-left: 40px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-faint);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 4px;
+      transition: color var(--transition);
+    }
+    .password-toggle:hover { color: var(--text-secondary); }
+
+    .login-forgot {
+      text-align: right;
+      margin-top: -12px;
+    }
+    .login-forgot a {
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+    .login-forgot a:hover { color: var(--green); }
+
+    .login-btn {
+      margin-top: 8px;
+      padding: 13px;
+      font-size: 15px;
+      font-family: var(--font-display);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* Mensagem de erro global */
+    .login-error {
+      background: var(--red-bg);
+      border: 1px solid #3a0000;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--red);
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+    .login-error.visible { display: block; }
+
+    .login-footer {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-faint);
+      text-align: center;
+    }
+
+    /* ── Responsivo ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .login-page { grid-template-columns: 1fr; }
+      .login-brand { display: none; }
+      .login-form-panel { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-page">
+
+  <!-- Painel esquerdo: Branding -->
+  <div class="login-brand">
+    <div class="brand-logo">
+      <div class="brand-logo-mark">JMR</div>
+      <div>
+        <div class="brand-logo-text">JMR Tecnologia</div>
+        <div class="brand-logo-sub">PLATAFORMA DE SEGURANÇA</div>
+      </div>
+    </div>
+
+    <div class="brand-hero">
+      <h1 class="brand-headline">
+        Segurança digital<br />começa com <span>pessoas</span><br />bem treinadas.
+      </h1>
+      <p class="brand-desc">
+        Treinamentos certificados, simulações de phishing e relatórios completos para proteger sua empresa de dentro para fora.
+      </p>
+    </div>
+
+    <div class="brand-stats">
+      <div>
+        <div class="brand-stat-value">98%</div>
+        <div class="brand-stat-label">taxa de conclusão</div>
+      </div>
+      <div>
+        <div class="brand-stat-value">+500</div>
+        <div class="brand-stat-label">colaboradores treinados</div>
+      </div>
+      <div>
+        <div class="brand-stat-value">ISO</div>
+        <div class="brand-stat-label">certificados válidos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Painel direito: Formulário -->
+  <div class="login-form-panel">
+    <div class="login-box">
+      <h2 class="login-title">Bem-vindo de volta</h2>
+      <p class="login-subtitle">Entre com seu e-mail e senha para continuar</p>
+
+      <div class="login-error" id="login-error"></div>
+
+      <form class="login-form" id="login-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email">E-mail</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉</span>
+            <input
+              class="form-input"
+              type="email"
+              id="email"
+              name="email"
+              placeholder="seu@email.com"
+              autocomplete="email"
+              required
+            />
+          </div>
+          <span class="form-error" id="email-error">Digite um e-mail válido</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Senha</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              class="form-input"
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            />
+            <button type="button" class="password-toggle" id="toggle-password" aria-label="Mostrar senha">
+              👁
+            </button>
+          </div>
+          <span class="form-error" id="password-error">Digite sua senha</span>
+        </div>
+
+        <div class="login-forgot">
+          <a href="#" id="forgot-link">Esqueceu a senha?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full login-btn" id="login-btn">
+          <span class="btn-spinner"></span>
+          <span class="btn-text">Entrar na plataforma</span>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        Problemas de acesso? Entre em contato com o administrador.<br />
+        <span style="color: var(--green); font-weight: 600;">JMR Tecnologia</span> &copy; 2025
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+  import { supabase }       from '../js/config/supabase.js'
+  import { redirectByRole } from '../js/auth/session.js'
+  import { toastSuccess, toastError } from '../js/utils/toast.js'
+
+  // ── Verificar se já está logado ──────────────────────────
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single()
+    if (profile) redirectByRole(profile.role)
+  }
+
+  // ── Toggle de senha ──────────────────────────────────────
+  document.getElementById('toggle-password').addEventListener('click', function() {
+    const input = document.getElementById('password')
+    const isText = input.type === 'text'
+    input.type = isText ? 'password' : 'text'
+    this.textContent = isText ? '👁' : '🙈'
+  })
+
+  // ── Forgot password ──────────────────────────────────────
+  document.getElementById('forgot-link').addEventListener('click', async (e) => {
+    e.preventDefault()
+    const email = document.getElementById('email').value.trim()
+    if (!email) {
+      toastError('Digite seu e-mail primeiro para redefinir a senha.')
+      document.getElementById('email').focus()
+      return
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${location.origin}/pages/reset-password.html`
+    })
+    if (error) {
+      toastError('Erro ao enviar e-mail. Tente novamente.')
+    } else {
+      toastSuccess('E-mail de redefinição enviado! Verifique sua caixa de entrada.')
+    }
+  })
+
+  // ── Submit do formulário ─────────────────────────────────
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    const emailInput    = document.getElementById('email')
+    const passwordInput = document.getElementById('password')
+    const emailError    = document.getElementById('email-error')
+    const passwordError = document.getElementById('password-error')
+    const loginError    = document.getElementById('login-error')
+    const btn           = document.getElementById('login-btn')
+
+    // Limpar erros anteriores
+    emailInput.classList.remove('error')
+    passwordInput.classList.remove('error')
+    emailError.classList.remove('visible')
+    passwordError.classList.remove('visible')
+    loginError.classList.remove('visible')
+
+    const email    = emailInput.value.trim()
+    const password = passwordInput.value
+
+    // Validação client-side
+    let hasError = false
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailInput.classList.add('error')
+      emailError.classList.add('visible')
+      hasError = true
+    }
+
+    if (!password) {
+      passwordInput.classList.add('error')
+      passwordError.classList.add('visible')
+      hasError = true
+    }
+
+    if (hasError) return
+
+    // Loading state
+    btn.classList.add('loading')
+    btn.disabled = true
+
+    // Auth Supabase
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error) {
+      btn.classList.remove('loading')
+      btn.disabled = false
+
+      const msg = error.message.includes('Invalid login')
+        ? 'E-mail ou senha incorretos. Verifique e tente novamente.'
+        : error.message.includes('Email not confirmed')
+        ? 'Confirme seu e-mail antes de entrar.'
+        : 'Erro ao fazer login. Tente novamente.'
+
+      loginError.textContent = msg
+      loginError.classList.add('visible')
+      return
+    }
+
+    // Buscar role para redirecionar
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single()
+
+    toastSuccess('Login realizado! Redirecionando...')
+
+    setTimeout(() => {
+      redirectByRole(profile?.role ?? 'colaborador')
+    }, 800)
+  })
+</script>
+
+</body>
+</html>

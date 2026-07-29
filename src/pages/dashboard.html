@@ -1,0 +1,152 @@
+<!-- ============================================ -->
+<!-- DASHBOARD - src/pages/dashboard.html -->
+<!-- ============================================ -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - JMR Security</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">JMR <span>Security</span></div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html" class="active">Dashboard</a></li>
+          <li><a href="empresas.html">Gestão de Empresas</a></li>
+          <li><a href="meus-cursos.html">Meus Cursos</a></li>
+          <li><a href="colaboradores.html">Colaboradores</a></li>
+          <li><a href="relatorios.html">Relatórios</a></li>
+          <li><a href="avaliacao.html">Avaliação</a></li>
+          <li><a href="ranking.html">Ranking</a></li>
+          <li><a href="configuracoes.html">Configurações</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="logout-btn-sidebar">Sair da conta</button>
+      </div>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Visão geral do treinamento e do desempenho da sua equipe.</p>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Colaboradores ativos</div>
+          <div class="metric-value" id="kpi-alunos">—</div>
+          <div class="metric-change positive">↑ +12% este mês</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Taxa de conclusão</div>
+          <div class="metric-value" id="kpi-conclusao">—</div>
+          <div class="metric-change positive">↑ +5,2% vs mês anterior</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Cursos ativos</div>
+          <div class="metric-value" id="kpi-cursos">—</div>
+          <div class="metric-change positive">↑ +2 novos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Certificados emitidos</div>
+          <div class="metric-value" id="kpi-certificados">—</div>
+          <div class="metric-change positive">↑ +38 este mês</div>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">Matrículas e conclusões</span>
+            <select class="chart-filter" disabled><option>Últimos 6 meses</option></select>
+          </div>
+          <div class="chart-container"><canvas id="enrollChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><span class="chart-title">Status de conclusão</span></div>
+          <div class="chart-container pie"><canvas id="statusChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Atividade recente -->
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Atividade recente</span></div>
+        <div class="activity-item">
+          <span class="activity-dot"></span>
+          <span class="activity-text"><b>Carlos Eduardo</b> concluiu o módulo <b>LGPD</b></span>
+          <span class="activity-time">há 2 h</span>
+        </div>
+        <div class="activity-item">
+          <span class="activity-dot"></span>
+          <span class="activity-text"><b>Ana Paula</b> iniciou <b>Segurança da Informação</b></span>
+          <span class="activity-time">há 5 h</span>
+        </div>
+        <div class="activity-item">
+          <span class="activity-dot"></span>
+          <span class="activity-text"><b>Roberto Lima</b> recebeu certificado de <b>Phishing</b></span>
+          <span class="activity-time">ontem</span>
+        </div>
+        <div class="activity-item">
+          <span class="activity-dot"></span>
+          <span class="activity-text"><b>Mariana Souza</b> foi adicionada à equipe</span>
+          <span class="activity-time">ontem</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { requireRole, logout } from '../js/auth/session.js'
+    import { supabase } from '../js/config/supabase.js'
+
+    await requireRole('admin', 'gestor')
+    document.getElementById('logout-btn').onclick = logout
+
+    // KPIs — tenta dado real de cursos; demais são exemplos (ajustáveis quando houver agregações)
+    try {
+      const { count } = await supabase.from('courses').select('id', { count: 'exact', head: true }).eq('active', true)
+      document.getElementById('kpi-cursos').textContent = count ?? 12
+    } catch (_) { document.getElementById('kpi-cursos').textContent = '12' }
+    document.getElementById('kpi-alunos').textContent = '1.247'
+    document.getElementById('kpi-conclusao').textContent = '78,4%'
+    document.getElementById('kpi-certificados').textContent = '512'
+
+    const GREEN = '#00FF41', GRID = '#1F2937', TEXT = '#9CA3AF'
+
+    new Chart(document.getElementById('enrollChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+        datasets: [
+          { label: 'Matrículas', data: [120,180,165,220,260,310], borderColor: GREEN, backgroundColor: 'rgba(0,255,65,0.12)', fill: true, tension: 0.35, borderWidth: 2, pointRadius: 3 },
+          { label: 'Conclusões', data: [80,120,130,170,200,245], borderColor: '#6B7280', fill: false, tension: 0.35, borderWidth: 2, pointRadius: 3, borderDash: [5,4] }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: TEXT } } },
+        scales: { y: { beginAtZero: true, ticks: { color: TEXT }, grid: { color: GRID } }, x: { ticks: { color: TEXT }, grid: { display: false } } } }
+    })
+
+    new Chart(document.getElementById('statusChart').getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: ['Concluído','Em andamento','Não iniciado'], datasets: [{ data: [78,16,6], backgroundColor: [GREEN,'#1aa436','#374151'], borderColor: '#0D0D0D', borderWidth: 3 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { color: TEXT, padding: 16 } } } }
+    })
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!-- ============================================ -->
+<!-- COLABORADORES - src/pages/colaboradores.html -->
+<!-- ============================================ -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colaboradores - JMR Security</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/app.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">JMR <span>Security</span></div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="empresas.html">Gestão de Empresas</a></li>
+          <li><a href="meus-cursos.html">Meus Cursos</a></li>
+          <li><a href="colaboradores.html" class="active">Colaboradores</a></li>
+          <li><a href="relatorios.html">Relatórios</a></li>
+          <li><a href="avaliacao.html">Avaliação</a></li>
+          <li><a href="ranking.html">Ranking</a></li>
+          <li><a href="configuracoes.html">Configurações</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="logout-btn-sidebar">Sair da conta</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Colaboradores</h1>
+          <p>Gerencie a equipe e acompanhe o progresso de cada pessoa.</p>
+        </div>
+        <button class="btn-app primary" id="add-btn">+ Adicionar colaborador</button>
+      </div>
+
+      <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="metric-card"><div class="metric-label">Total</div><div class="metric-value" id="kpi-total">—</div></div>
+        <div class="metric-card"><div class="metric-label">Ativos</div><div class="metric-value" id="kpi-ativos">—</div></div>
+        <div class="metric-card"><div class="metric-label">Progresso médio</div><div class="metric-value" id="kpi-progresso">—</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Equipe</span></div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Colaborador</th><th>E-mail</th><th>Função</th><th>Progresso</th><th>Status</th></tr>
+          </thead>
+          <tbody id="rows">
+            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:28px;">Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { requireRole, logout, getProfile } from '../js/auth/session.js'
+    import { supabase } from '../js/config/supabase.js'
+
+    await requireRole('admin', 'gestor')
+    document.getElementById('logout-btn').onclick = logout
+    document.getElementById('add-btn').onclick = () =>
+      alert('Fluxo de convite de colaborador — a ser conectado ao cadastro/Supabase.')
+
+    const roleLabel = { admin: 'Administrador', gestor: 'Gestor', colaborador: 'Colaborador' }
+    const initials = (name = '?') => name.trim().split(/\s+/).slice(0, 2).map(p => p[0]).join('').toUpperCase()
+    const esc = (s = '') => String(s).replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]))
+
+    // Dados de exemplo (usados se a consulta não retornar nada)
+    const demo = [
+      { full_name: 'Carlos Eduardo Santos', email: 'carlos@empresa.com', role: 'colaborador', progress: 100, active: true },
+      { full_name: 'Ana Paula Ferreira',    email: 'ana@empresa.com',    role: 'colaborador', progress: 92,  active: true },
+      { full_name: 'Roberto Lima Oliveira', email: 'roberto@empresa.com',role: 'gestor',      progress: 87,  active: true },
+      { full_name: 'Mariana Souza',         email: 'mariana@empresa.com',role: 'colaborador', progress: 74,  active: true },
+      { full_name: 'João Pedro Almeida',    email: 'joao@empresa.com',   role: 'colaborador', progress: 41,  active: false },
+    ]
+
+    async function loadTeam() {
+      try {
+        const me = await getProfile()
+        let q = supabase.from('profiles').select('full_name, email, role, company_id')
+        if (me?.company_id) q = q.eq('company_id', me.company_id)
+        const { data, error } = await q
+        if (error || !data || !data.length) return demo
+        return data.map(p => ({ ...p, progress: p.progress ?? 0, active: p.active ?? true }))
+      } catch (_) { return demo }
+    }
+
+    const team = await loadTeam()
+    const tbody = document.getElementById('rows')
+    tbody.innerHTML = team.map(p => `
+      <tr>
+        <td><div class="user-cell"><div class="avatar">${initials(p.full_name)}</div><span style="color:var(--text-primary)">${esc(p.full_name)}</span></div></td>
+        <td>${esc(p.email || '—')}</td>
+        <td>${roleLabel[p.role] || esc(p.role || '—')}</td>
+        <td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-bar"><div class="progress-fill" style="width:${p.progress}%"></div></div><span style="font-size:13px;color:var(--text-muted)">${p.progress}%</span></div></td>
+        <td><span class="tag ${p.active ? 'green' : 'muted'}">${p.active ? 'Ativo' : 'Inativo'}</span></td>
+      </tr>`).join('')
+
+    document.getElementById('kpi-total').textContent = team.length
+    document.getElementById('kpi-ativos').textContent = team.filter(p => p.active).length
+    document.getElementById('kpi-progresso').textContent =
+      Math.round(team.reduce((s, p) => s + (p.progress || 0), 0) / team.length) + '%'
+  </script>
+</body>
+</html>

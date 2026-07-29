@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JMR Security — Treinamento em Segurança Digital</title>
+  <meta name="description" content="Plataforma de treinamento certificado em segurança digital. Capacite sua equipe, simule ataques de phishing e emita certificados." />
+  <link rel="stylesheet" href="./src/css/variables.css" />
+  <link rel="stylesheet" href="./src/css/base.css" />
+  <link rel="stylesheet" href="./src/css/components.css" />
+  <style>
+    :root { --bg-image: url('./src/images/image1.png'); }
+
+    html, body { overflow-x: hidden; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+    /* ── Header ──────────────────────────────────────────── */
+    .site-header { position: absolute; top: 0; left: 0; right: 0; z-index: 50; }
+    .site-header .wrap { display: flex; align-items: center; justify-content: space-between; height: 88px; }
+    .brand-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-logo-mark {
+      width: 38px; height: 38px; background: var(--green); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 12px; font-weight: 800; color: #000; letter-spacing: -0.5px;
+    }
+    .brand-logo-text { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text-primary); line-height: 1.05; }
+    .brand-logo-sub { font-size: 10px; color: var(--text-faint); letter-spacing: 0.07em; }
+    .nav-links { display: flex; gap: 36px; }
+    .nav-links a { font-size: 15px; color: var(--text-secondary); transition: color var(--transition); }
+    .nav-links a:hover { color: var(--green); }
+    .btn-pill { border-radius: var(--radius-full); padding: 11px 30px; font-weight: 700; }
+
+    /* ── Hero (foto do autor no fundo) ───────────────────── */
+    .hero { position: relative; overflow: hidden; min-height: 100vh; display: flex; align-items: center; background: var(--black); }
+    .hero::before {
+      content: ''; position: absolute; inset: 0; z-index: 0;
+      background: var(--bg-image) center right / cover no-repeat;
+    }
+    .hero::after {
+      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.90) 32%, rgba(0,0,0,0.55) 58%, rgba(0,0,0,0.15) 100%),
+        linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 22%, transparent 55%, var(--black) 100%),
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: cover, cover, 46px 46px, 46px 46px;
+      mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
+    }
+    .hero .wrap { position: relative; z-index: 2; width: 100%; text-align: center; padding-top: 88px; padding-bottom: 64px; }
+    .hero-inner { max-width: 760px; margin: 0 auto 0 7%; text-align: center; }
+    .hero h1 {
+      font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 5.4vw, 52px);
+      line-height: 1.12; letter-spacing: -0.5px; color: var(--text-primary); margin-bottom: 24px;
+    }
+    .hero h1 .accent { color: var(--green); }
+    .hero p { font-size: clamp(16px, 2vw, 20px); color: var(--text-muted); line-height: 1.7; max-width: 560px; margin: 0 auto 38px; }
+    .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero .btn-lg { padding: 16px 40px; font-size: 16px; }
+    .hero-stats { display: flex; gap: 52px; justify-content: center; flex-wrap: wrap; margin-top: 64px; }
+    .hero-stat-value { font-family: var(--font-display); font-size: 30px; font-weight: 800; color: var(--green); }
+    .hero-stat-label { font-size: 13px; color: var(--text-faint); margin-top: 4px; }
+
+    /* ── Planos (modelo das 3 colunas com barra verde) ───── */
+    .plans { position: relative; overflow: hidden; padding: 100px 0; border-top: 1px solid var(--border); }
+    .plans::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; opacity: 0.5;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(ellipse 70% 80% at 50% 30%, #000 30%, transparent 75%);
+    }
+    .plans .wrap { position: relative; z-index: 1; }
+    .plans-head { text-align: center; max-width: 720px; margin: 0 auto 64px; }
+    .plans-head h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4vw, 40px); line-height: 1.15; color: var(--text-primary); }
+    .plans-head h2 .accent { color: var(--green); }
+    .plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .plan { position: relative; padding-left: 28px; }
+    .plan::before {
+      content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 2px;
+      background: linear-gradient(180deg, rgba(0,255,65,0.05), rgba(0,255,65,0.02));
+    }
+    .plan::after {
+      content: ''; position: absolute; left: -1px; top: 4px; width: 4px; height: 64px; border-radius: 4px;
+      background: var(--green); box-shadow: 0 0 16px 2px rgba(0,255,65,0.6);
+    }
+    .plan h3 { font-family: var(--font-display); font-weight: 800; font-size: 22px; letter-spacing: 0.04em; color: var(--text-primary); margin-bottom: 16px; }
+    .plan p { font-size: 16px; color: var(--text-muted); line-height: 1.7; margin-bottom: 28px; }
+    .plan-link { display: inline-flex; align-items: center; gap: 14px; color: var(--green); font-weight: 600; font-size: 15px; transition: gap var(--transition); }
+    .plan-link:hover { gap: 18px; }
+    .plan-link .arrow {
+      width: 38px; height: 38px; border: 1px solid var(--green-dark); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; transition: all var(--transition);
+    }
+    .plan-link:hover .arrow { border-color: var(--green); box-shadow: 0 0 14px rgba(0,255,65,0.4); }
+
+    /* ── Perfil do professor ─────────────────────────────── */
+    .professor { padding: 0 0 100px; }
+    .professor-head { text-align: center; max-width: 720px; margin: 0 auto 52px; }
+    .professor-head .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+    .professor-head h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 4vw, 34px); color: var(--text-primary); margin-bottom: 10px; }
+    .professor-head .role { font-size: 15px; color: var(--text-muted); }
+    .professor-head .role b { color: var(--green); font-weight: 600; }
+
+    .professor-grid { display: grid; grid-template-columns: 320px 1fr; gap: 52px; align-items: start; }
+    .professor-photo { position: relative; }
+    .professor-photo::before { content: ''; position: absolute; inset: -28px; z-index: 0; background: radial-gradient(circle at 50% 38%, rgba(0,255,65,0.16), transparent 70%); pointer-events: none; }
+    .professor-photo .ring { position: relative; z-index: 1; border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--green-dark); box-shadow: var(--shadow-green); }
+    .professor-photo img { display: block; width: 100%; height: auto; }
+
+    .professor-bio p { color: var(--text-secondary); line-height: 1.8; font-size: 15px; margin-bottom: 16px; }
+    .professor-bio p:last-child { margin-bottom: 0; }
+    .cert-block { margin: 24px 0; padding: 22px 24px; background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .cert-block h3 { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; }
+    .cert-list { list-style: none; display: grid; gap: 11px; }
+    .cert-list li { display: flex; align-items: flex-start; gap: 11px; color: var(--text-secondary); font-size: 14px; line-height: 1.5; }
+    .cert-list li svg { width: 18px; height: 18px; color: var(--green); flex-shrink: 0; margin-top: 1px; }
+    .cert-list li b { color: var(--text-primary); font-weight: 600; }
+
+    /* ── CTA final ───────────────────────────────────────── */
+    .cta-band { position: relative; overflow: hidden; border-top: 1px solid var(--border); background: var(--surface-1); }
+    .cta-band::after { content: ''; position: absolute; bottom: -140px; right: -80px; width: 460px; height: 460px; background: radial-gradient(circle, rgba(0,255,65,0.10) 0%, transparent 70%); pointer-events: none; }
+    .cta-inner { position: relative; z-index: 1; text-align: center; padding: 80px 0; }
+    .cta-inner h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4vw, 38px); color: var(--text-primary); margin-bottom: 14px; }
+    .cta-inner p { font-size: 16px; color: var(--text-muted); margin-bottom: 32px; }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    .site-footer { padding: 40px 0; border-top: 1px solid var(--border); }
+    .site-footer .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .site-footer .copy { font-size: 13px; color: var(--text-faint); }
+    .site-footer .copy b { color: var(--green); font-weight: 600; }
+
+    /* ── Responsivo ──────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hero-inner { margin: 0 auto; max-width: 100%; }
+      .plans-grid { grid-template-columns: 1fr; gap: 36px; }
+      .professor-grid { grid-template-columns: 1fr; gap: 32px; }
+      .professor-photo { max-width: 320px; margin: 0 auto; }
+      .hero::before { background-position: center; }
+      .hero::after {
+        background-image:
+          linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.78) 60%, var(--black) 100%),
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: cover, 46px 46px, 46px 46px;
+      }
+    }
+    @media (max-width: 600px) {
+      .wrap { padding: 0 20px; }
+      .hero-stats { gap: 28px; }
+      .hero .btn-lg { padding: 14px 28px; }
+      .hero-cta { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand-logo" href="/">
+        <div class="brand-logo-mark">JMR</div>
+        <div>
+          <div class="brand-logo-text">JMR Security</div>
+          <div class="brand-logo-sub">PLATAFORMA DE SEGURANÇA</div>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="#planos">Planos</a>
+        <a href="#professor">Professor</a>
+        <a href="#contato">Para empresas</a>
+      </nav>
+      <a id="cta-header" class="btn btn-primary btn-pill" href="/src/pages/login.html">Login</a>
+    </div>
+  </header>
+
+  <!-- ── Hero ───────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-inner">
+        <h1>Segurança digital começa com<br /><span class="accent">pessoas bem treinadas</span></h1>
+        <p>Conheça a JMR Security: treinamentos certificados, simulações de phishing e relatórios para proteger sua empresa de dentro para fora.</p>
+        <div class="hero-cta">
+          <a id="cta-hero" class="btn btn-primary btn-lg" href="/src/pages/login.html">Começar agora</a>
+          <a class="btn btn-secondary btn-lg" href="#planos">Ver planos</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="hero-stat-value">98%</div><div class="hero-stat-label">taxa de conclusão</div></div>
+          <div><div class="hero-stat-value">+500</div><div class="hero-stat-label">colaboradores treinados</div></div>
+          <div><div class="hero-stat-value">ISO</div><div class="hero-stat-label">certificados válidos</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Planos ─────────────────────────────────────────── -->
+  <section class="plans" id="planos">
+    <div class="wrap">
+      <div class="plans-head">
+        <h2>Para empresas que querem treinar a equipe com<br /><span class="accent">planos por assinatura</span></h2>
+      </div>
+      <div class="plans-grid">
+        <div class="plan">
+          <h3>ESSENCIAL</h3>
+          <p>Para colocar a equipe em dia com o básico de segurança, senhas e boas práticas do dia a dia.</p>
+          <a class="plan-link" href="/src/pages/login.html">Contratar <span class="arrow">→</span></a>
+        </div>
+        <div class="plan">
+          <h3>PROFISSIONAL</h3>
+          <p>Para aprofundar com trilhas completas, simulações de phishing e acompanhamento de progresso.</p>
+          <a class="plan-link" href="/src/pages/login.html">Contratar <span class="arrow">→</span></a>
+        </div>
+        <div class="plan">
+          <h3>CORPORATIVO</h3>
+          <p>Para grandes equipes: relatórios avançados, gestão de usuários e certificação em escala.</p>
+          <a class="plan-link" href="#contato">Falar com a gente <span class="arrow">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Perfil do professor ────────────────────────────── -->
+  <section class="professor" id="professor">
+    <div class="wrap">
+      <div class="professor-head">
+        <div class="eyebrow">Perfil do professor</div>
+        <h2>Jesuilton Montalvão</h2>
+        <p class="role">Fundador e diretor da <b>JMR Tecnologia</b> &bull; Especialista em Segurança da Informação</p>
+      </div>
+
+      <div class="professor-grid">
+        <div class="professor-photo">
+          <div class="ring"><img src="./src/images/image2.png" alt="Jesuilton Montalvão" /></div>
+        </div>
+
+        <div class="professor-bio">
+          <p>Jesuilton Montalvão é um profissional com ampla experiência em tecnologia da informação, segurança, privacidade, compliance e governança corporativa, atuando há mais de duas décadas na implementação de soluções estratégicas voltadas à proteção de dados e continuidade operacional.</p>
+          <p>É Pós-Graduado em Redes de Computadores com Ênfase em Segurança da Informação e possui diversas certificações internacionais reconhecidas no mercado de tecnologia e cibersegurança, incluindo:</p>
+
+          <div class="cert-block">
+            <h3>Certificações</h3>
+            <ul class="cert-list">
+              <li><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span><b>Exemplar Global</b> — Auditor Líder da ISO/IEC 27001</span></li>
+              <li><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>EXIN Information Security Foundation based on ISO/IEC 27001</span></li>
+              <li><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>EXIN Privacy and Data Protection Foundation</span></li>
+              <li><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>EXIN PDPP (Privacy and Data Protection Practitioner)</span></li>
+              <li><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>EXIN DPO (Data Protection Officer)</span></li>
+              <li><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>PeopleCert ITIL&reg; 4 Foundation</span></li>
+              <li><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Amazon Web Services Certified Cloud Practitioner</span></li>
+              <li><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span><b>Hacker Ético</b> — identificação de vulnerabilidades e análise de segurança ofensiva</span></li>
+              <li><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span><b>Perito Forense Digital</b> — investigação de incidentes cibernéticos e análise de evidências digitais</span></li>
+            </ul>
+          </div>
+
+          <p>Ao longo de sua trajetória, Jesuilton tem conduzido projetos relacionados à governança de TI, adequação à Lei Geral de Proteção de Dados Pessoais, auditorias de conformidade, segurança de infraestrutura, análise de riscos, resposta a incidentes e programas de conscientização em segurança da informação.</p>
+          <p>Como fundador e diretor da JMR Tecnologia Soluções Corporativas, atua no desenvolvimento de soluções corporativas voltadas à proteção da informação, privacidade, compliance e fortalecimento da maturidade em segurança cibernética nas organizações.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA final ──────────────────────────────────────── -->
+  <section class="cta-band" id="contato">
+    <div class="wrap cta-inner">
+      <h2>Pronto para treinar sua equipe?</h2>
+      <p>Entre na plataforma ou fale com a gente para liberar o acesso da sua empresa.</p>
+      <a id="cta-band" class="btn btn-primary btn-lg btn-pill" href="/src/pages/login.html">Entrar na plataforma</a>
+    </div>
+  </section>
+
+  <!-- ── Footer ─────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <a class="brand-logo" href="/">
+        <div class="brand-logo-mark">JMR</div>
+        <div class="brand-logo-text">JMR Security</div>
+      </a>
+      <div class="copy"><b>JMR Tecnologia</b> &copy; 2025 — Plataforma de treinamento em segurança digital</div>
+    </div>
+  </footer>
+
+  <div id="toast-container"></div>
+
+  <!-- ── Sessão (sem redirecionar) + catálogo público ───── -->
+  <script type="module">
+    import { supabase }       from './src/js/config/supabase.js'
+    import { redirectByRole } from './src/js/auth/session.js'
+
+    // 1) Se já estiver logado, os botões levam direto à área do usuário (sem bounce automático).
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles').select('role').eq('id', session.user.id).single()
+        const role = profile?.role ?? 'colaborador'
+        const go = (e) => { e.preventDefault(); redirectByRole(role) }
+        ;['cta-header', 'cta-hero', 'cta-band'].forEach(id => {
+          const el = document.getElementById(id)
+          if (!el) return
+          if (id !== 'cta-header') el.textContent = 'Ir para a plataforma'
+          el.addEventListener('click', go)
+        })
+      }
+    } catch (_) { /* offline / sem sessão: botões seguem para o login */ }
+  </script>
+
+</body>
+</html>

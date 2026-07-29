@@ -1,0 +1,71 @@
+/* ============================================================
+   JMR Tecnologia — Design Tokens
+   Identidade visual: dark, verde neon, alto contraste
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  /* Cores base */
+  --black:        #000000;
+  --surface-1:    #0D0D0D;
+  --surface-2:    #111827;
+  --surface-3:    #1a2035;
+  --border:       #1F2937;
+  --border-light: #374151;
+  --muted:        #6B7280;
+
+  /* Verde JMR */
+  --green:        #00FF41;
+  --green-hover:  #00CC33;
+  --green-dark:   #004010;
+  --green-subtle: #001a0a;
+  --green-dim:    rgba(0,255,65,0.08);
+
+  /* Texto */
+  --text-primary:   #F9FAFB;
+  --text-secondary: #D1D5DB;
+  --text-muted:     #9CA3AF;
+  --text-faint:     #6B7280;
+
+  /* Semânticas */
+  --yellow:       #FBBF24;
+  --yellow-bg:    #1a1000;
+  --red:          #F87171;
+  --red-bg:       #1a0000;
+  --blue:         #60A5FA;
+  --blue-bg:      #0a0f1f;
+  --purple:       #C084FC;
+  --purple-bg:    #0d001a;
+
+  /* Tipografia */
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+
+  /* Espaçamentos */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Raios */
+  --radius-sm:  6px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-full: 999px;
+
+  /* Sombras */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.6);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.7);
+  --shadow-green: 0 0 20px rgba(0,255,65,0.15);
+
+  /* Transições */
+  --transition: 0.18s ease;
+}

@@ -1,0 +1,332 @@
+<!-- ============================================ -->
+<!-- AVALIAÇÃO - src/pages/avaliacao.html -->
+<!-- Engine de quiz dinâmica: múltiplas questões, feedback -->
+<!-- imediato, pontuação, XP e conquistas. -->
+<!-- ============================================ -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avaliação - JMR Security</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <style>
+    .main-content { padding: 0; }
+    .main-content::before { content: none; }
+
+    .quiz-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 48px; background: var(--surface-1); border-bottom: 1px solid var(--border); gap: 16px; }
+    .quiz-nav-title { color: var(--text-muted); font-size: 0.9rem; text-align: center; flex: 1; }
+    .nav-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: transparent; color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; font-size: 0.9rem; font-family: var(--font-body); transition: all var(--transition); text-decoration: none; }
+    .nav-btn:hover:not(:disabled) { border-color: var(--green-dark); color: var(--green); }
+    .nav-btn.next { background: var(--green); color: #04210b; border-color: var(--green); font-weight: 600; }
+    .nav-btn.next:hover { box-shadow: var(--shadow-green); }
+    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Chip de XP no cabeçalho */
+    .xp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--green-subtle); border: 1px solid var(--green-dark); border-radius: var(--radius-full); color: var(--green); font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
+
+    .quiz-content { max-width: 900px; margin: 0 auto; padding: 48px; color: var(--text-secondary); }
+    .question-header { margin-bottom: 32px; }
+    .question-number { font-size: 0.8rem; color: var(--green); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .question-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-bottom: 16px; }
+    .question-text { color: var(--text-secondary); line-height: 1.8; font-size: 1rem; margin-bottom: 32px; padding: 20px; background: var(--surface-1); border-radius: var(--radius-md); border-left: 4px solid var(--green); }
+    .question-text p + p { margin-top: 12px; }
+    .question-text .prompt { color: var(--text-primary); font-weight: 600; margin-top: 16px; }
+
+    .options-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .option-item { position: relative; }
+    .option-input { position: absolute; opacity: 0; cursor: pointer; }
+    .option-label { display: flex; align-items: center; gap: 16px; padding: 18px 22px; background: var(--surface-1); border: 2px solid var(--border); border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition); font-size: 1rem; color: var(--text-secondary); }
+    .option-label:hover { border-color: var(--border-light); background: var(--surface-2); }
+    .option-input:checked + .option-label { border-color: var(--green); background: var(--green-subtle); }
+    .option-input.correct + .option-label { border-color: var(--green); background: var(--green-subtle); }
+    .option-input.wrong + .option-label { border-color: var(--red); background: var(--red-bg); }
+    .option-input:disabled + .option-label { cursor: default; }
+
+    .option-radio { width: 24px; height: 24px; border: 2px solid var(--border-light); border-radius: 50%; flex-shrink: 0; transition: all var(--transition); }
+    .option-input:checked + .option-label .option-radio { border-color: var(--green); background: var(--green); }
+    .option-input.correct + .option-label .option-radio { border-color: var(--green); background: var(--green); }
+    .option-input.wrong + .option-label .option-radio { border-color: var(--red); background: var(--red); }
+    .option-letter { font-weight: 700; color: var(--text-primary); }
+
+    .feedback { margin-top: 24px; padding: 20px; border-radius: var(--radius-md); animation: slideIn 0.3s ease; }
+    .feedback.correct { background: var(--green-subtle); border: 1px solid var(--green-dark); color: var(--green); }
+    .feedback.wrong { background: var(--red-bg); border: 1px solid #3a0000; color: var(--red); }
+    .feedback p { color: var(--text-secondary); margin-top: 8px; line-height: 1.6; }
+    .feedback-title { font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+    .quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); }
+    .progress-info { display: flex; align-items: center; gap: 16px; }
+    .progress-bar-quiz { width: 200px; height: 8px; background: var(--surface-3); border-radius: 999px; overflow: hidden; }
+    .progress-fill-quiz { height: 100%; width: 0%; background: var(--green); border-radius: 999px; transition: width 0.3s; }
+    .progress-text { font-size: 0.9rem; color: var(--text-muted); }
+
+    /* ── Tela de resultado ── */
+    .result { max-width: 640px; margin: 48px auto; padding: 0 24px; text-align: center; animation: slideIn 0.4s ease; }
+    .result-ring { width: 148px; height: 148px; margin: 0 auto 24px; border-radius: 50%; display: grid; place-items: center; }
+    .result-score { font-family: var(--font-display); font-size: 2.6rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+    .result-score small { display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 500; margin-top: 4px; letter-spacing: 0.05em; }
+    .result h1 { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; }
+    .result .subtitle { color: var(--text-muted); margin-bottom: 28px; }
+    .result-badge-status { display: inline-flex; padding: 6px 16px; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 700; margin-bottom: 24px; }
+    .result-badge-status.pass { background: var(--green-subtle); color: var(--green); border: 1px solid var(--green-dark); }
+    .result-badge-status.fail { background: var(--red-bg); color: var(--red); border: 1px solid #3a0000; }
+
+    .result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+    .result-stat { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 12px; }
+    .result-stat .val { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--text-primary); }
+    .result-stat .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+    .level-box { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 24px; text-align: left; }
+    .level-box .lv-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.9rem; }
+    .level-box .lv-bar { height: 8px; background: var(--surface-3); border-radius: 999px; overflow: hidden; }
+    .level-box .lv-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width 0.6s ease; }
+
+    .new-badges { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 24px; }
+    .new-badge { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--green-subtle); border: 1px solid var(--green-dark); border-radius: var(--radius-full); font-size: 0.85rem; color: var(--green); font-weight: 600; animation: pop 0.35s ease; }
+    .new-badge .emoji { font-size: 1.1rem; }
+
+    .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pop { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+
+    .quiz-loading { display: grid; place-items: center; min-height: 60vh; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">JMR <span>Security</span></div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="empresas.html">Gestão de Empresas</a></li>
+          <li><a href="meus-cursos.html">Meus Cursos</a></li>
+          <li><a href="colaboradores.html">Colaboradores</a></li>
+          <li><a href="relatorios.html">Relatórios</a></li>
+          <li><a href="avaliacao.html" class="active">Avaliação</a></li>
+          <li><a href="ranking.html">Ranking</a></li>
+          <li><a href="configuracoes.html">Configurações</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="logout-btn-sidebar">Sair da conta</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="quiz-nav">
+        <button class="nav-btn" id="btn-prev" disabled>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          Anterior
+        </button>
+        <span class="quiz-nav-title" id="quiz-nav-title">Carregando avaliação…</span>
+        <span class="xp-chip" id="xp-chip">⚡ 0 XP</span>
+        <button class="nav-btn next" id="btn-next">Responder</button>
+      </div>
+
+      <div id="quiz-root">
+        <div class="quiz-loading"><div class="spinner"></div></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { requireRole, logout } from '../js/auth/session.js'
+    import { loadQuiz, grade, saveAttempt } from '../js/services/quiz.js'
+    import { getState, registerQuizResult, levelFromXp } from '../js/services/gamification.js'
+    import { toastSuccess, toastInfo } from '../js/utils/toast.js'
+
+    await requireRole('colaborador', 'admin', 'gestor')
+    document.getElementById('logout-btn').onclick = logout
+
+    // Slug via ?quiz=lgpd (padrão: lgpd)
+    const params = new URLSearchParams(location.search)
+    const slug = params.get('quiz') || 'lgpd'
+
+    const root     = document.getElementById('quiz-root')
+    const btnPrev  = document.getElementById('btn-prev')
+    const btnNext  = document.getElementById('btn-next')
+    const navTitle = document.getElementById('quiz-nav-title')
+    const xpChip   = document.getElementById('xp-chip')
+
+    const quiz = await loadQuiz(slug)
+    const questions = quiz.questions
+    const answers = new Array(questions.length).fill(null) // índice escolhido por questão
+    let current = 0
+
+    navTitle.textContent = quiz.titulo
+    refreshXpChip()
+
+    function refreshXpChip() {
+      const s = getState()
+      xpChip.textContent = `⚡ ${s.xp} XP · Nv ${s.level}`
+    }
+
+    const esc = (t) => String(t).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))
+    const letter = (i) => String.fromCharCode(65 + i)
+    const arrowSvg = '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>'
+
+    function renderQuestion() {
+      const q = questions[current]
+      const revealed = answers[current] !== null
+      const answeredCount = answers.filter((a) => a !== null).length
+      const progress = Math.round((answeredCount / questions.length) * 100)
+
+      const enunciadoHtml = (q.enunciado || []).map((p) => `<p>${esc(p)}</p>`).join('')
+      const optionsHtml = q.opcoes.map((op, i) => {
+        let stateClass = ''
+        if (revealed) {
+          if (i === q.correta) stateClass = 'correct'
+          else if (i === answers[current]) stateClass = 'wrong'
+        }
+        const checked = answers[current] === i ? 'checked' : ''
+        const disabled = revealed ? 'disabled' : ''
+        return `
+          <li class="option-item">
+            <input type="radio" name="answer" id="opt-${i}" class="option-input ${stateClass}" value="${i}" ${checked} ${disabled}>
+            <label for="opt-${i}" class="option-label">
+              <div class="option-radio"></div>
+              <span class="option-letter">${letter(i)}.</span>
+              <span>${esc(op)}</span>
+            </label>
+          </li>`
+      }).join('')
+
+      let feedbackHtml = ''
+      if (revealed) {
+        const acertou = answers[current] === q.correta
+        feedbackHtml = `
+          <div class="feedback ${acertou ? 'correct' : 'wrong'}">
+            <div class="feedback-title">
+              ${acertou
+                ? '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Resposta correta!'
+                : '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg> Resposta incorreta'}
+            </div>
+            ${!acertou ? `<p style="margin-top:4px"><strong>Correta: alternativa ${letter(q.correta)}.</strong></p>` : ''}
+            <p>${esc(q.explicacao)}</p>
+          </div>`
+      }
+
+      root.innerHTML = `
+        <div class="quiz-content">
+          <div class="question-header">
+            <div class="question-number">Questão ${current + 1} de ${questions.length}</div>
+            <h1 class="question-title">${esc(q.titulo)}</h1>
+          </div>
+          <div class="question-text">
+            ${enunciadoHtml}
+            ${q.pergunta ? `<p class="prompt">${esc(q.pergunta)}</p>` : ''}
+          </div>
+          <ul class="options-list">${optionsHtml}</ul>
+          ${feedbackHtml}
+          <div class="quiz-footer">
+            <div class="progress-info">
+              <div class="progress-bar-quiz"><div class="progress-fill-quiz" style="width:${progress}%"></div></div>
+              <span class="progress-text">${answeredCount} de ${questions.length} respondidas</span>
+            </div>
+            <span style="color:var(--text-muted);font-size:0.85rem;">Módulo: ${esc(quiz.modulo || '')}</span>
+          </div>
+        </div>`
+
+      btnPrev.disabled = current === 0
+      const isLast = current === questions.length - 1
+      const label = revealed ? (isLast ? 'Ver resultado ' : 'Próxima ') : 'Responder'
+      btnNext.innerHTML = revealed ? label + arrowSvg : label
+    }
+
+    function onNext() {
+      const revealed = answers[current] !== null
+      if (!revealed) {
+        const sel = root.querySelector('input[name="answer"]:checked')
+        if (!sel) { toastInfo('Selecione uma alternativa antes de continuar.'); return }
+        answers[current] = Number(sel.value)
+        renderQuestion()
+        return
+      }
+      if (current < questions.length - 1) { current++; renderQuestion() }
+      else finish()
+    }
+
+    function onPrev() { if (current > 0) { current--; renderQuestion() } }
+
+    function finish() {
+      const result = grade(questions, answers)
+      const aprovado = result.pontuacao >= (quiz.aprovacao ?? 70)
+      const gam = registerQuizResult({ gainedXp: result.gainedXp, perfect: result.perfect, approved: aprovado })
+      saveAttempt({ slug: quiz.slug, acertos: result.acertos, total: result.total, pontuacao: result.pontuacao, aprovado })
+      refreshXpChip()
+      renderResult(result, aprovado, gam)
+    }
+
+    function renderResult(result, aprovado, gam) {
+      btnPrev.style.display = 'none'
+      btnNext.style.display = 'none'
+      navTitle.textContent = 'Resultado da avaliação'
+
+      const ringColor = aprovado ? 'var(--green)' : 'var(--red)'
+      const lv = levelFromXp(gam.summary.xp)
+      const badgesHtml = (gam.newBadges || []).map((b) =>
+        `<div class="new-badge"><span class="emoji">${b.icon}</span> ${esc(b.nome)}</div>`
+      ).join('')
+
+      root.innerHTML = `
+        <div class="result">
+          <div class="result-ring" style="background: conic-gradient(${ringColor} ${result.pontuacao * 3.6}deg, var(--surface-3) 0deg);">
+            <div style="width:120px;height:120px;border-radius:50%;background:var(--black);display:grid;place-items:center;">
+              <div class="result-score">${result.pontuacao}%<small>${result.acertos}/${result.total} acertos</small></div>
+            </div>
+          </div>
+
+          <div class="result-badge-status ${aprovado ? 'pass' : 'fail'}">
+            ${aprovado ? '✓ Aprovado' : '✕ Não atingiu a nota mínima'}
+          </div>
+
+          <h1>${aprovado ? (result.perfect ? 'Perfeito! 🎯' : 'Muito bem!') : 'Quase lá!'}</h1>
+          <p class="subtitle">
+            ${aprovado
+              ? 'Você concluiu a avaliação com aproveitamento suficiente.'
+              : `A nota mínima para aprovação é ${quiz.aprovacao ?? 70}%. Revise o conteúdo e tente novamente.`}
+          </p>
+
+          <div class="result-stats">
+            <div class="result-stat"><div class="val" style="color:var(--green)">+${gam.gainedXp}</div><div class="lbl">XP conquistado</div></div>
+            <div class="result-stat"><div class="val">${gam.summary.streak}🔥</div><div class="lbl">Sequência (dias)</div></div>
+            <div class="result-stat"><div class="val">Nv ${lv.level}</div><div class="lbl">${gam.summary.rank.label}</div></div>
+          </div>
+
+          ${gam.leveledUp ? `<div class="new-badge" style="margin:0 auto 20px;display:inline-flex">⬆️ Você subiu para o nível ${lv.level}!</div>` : ''}
+
+          <div class="level-box">
+            <div class="lv-top">
+              <span style="color:var(--text-secondary)">Nível ${lv.level}</span>
+              <span style="color:var(--text-muted)">${lv.toNext} XP para o nível ${lv.level + 1}</span>
+            </div>
+            <div class="lv-bar"><div class="lv-fill" style="width:${lv.pct}%"></div></div>
+          </div>
+
+          ${badgesHtml ? `<div class="new-badges">${badgesHtml}</div>` : ''}
+
+          <div class="result-actions">
+            <button class="nav-btn" id="btn-retry">Refazer avaliação</button>
+            <a href="meus-cursos.html" class="nav-btn next" style="text-decoration:none">Voltar aos cursos</a>
+            <a href="ranking.html" class="nav-btn" style="text-decoration:none">Ver ranking</a>
+          </div>
+        </div>`
+
+      if (gam.leveledUp) toastSuccess(`Parabéns! Você alcançou o nível ${lv.level}.`)
+      else if (aprovado) toastSuccess('Avaliação concluída com aprovação!')
+
+      document.getElementById('btn-retry').onclick = () => location.reload()
+    }
+
+    btnNext.onclick = onNext
+    btnPrev.onclick = onPrev
+    renderQuestion()
+  </script>
+</body>
+</html>

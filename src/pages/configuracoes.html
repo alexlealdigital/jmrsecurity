@@ -1,0 +1,137 @@
+<!-- ============================================ -->
+<!-- CONFIGURAÇÕES - src/pages/configuracoes.html -->
+<!-- ============================================ -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configurações - JMR Security</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/app.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">JMR <span>Security</span></div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="empresas.html">Gestão de Empresas</a></li>
+          <li><a href="meus-cursos.html">Meus Cursos</a></li>
+          <li><a href="colaboradores.html">Colaboradores</a></li>
+          <li><a href="relatorios.html">Relatórios</a></li>
+          <li><a href="avaliacao.html">Avaliação</a></li>
+          <li><a href="ranking.html">Ranking</a></li>
+          <li><a href="configuracoes.html" class="active">Configurações</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="logout-btn-sidebar">Sair da conta</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Configurações</h1>
+          <p>Gerencie seu perfil, segurança e preferências da conta.</p>
+        </div>
+      </div>
+
+      <!-- Perfil -->
+      <div class="panel settings-section">
+        <div class="panel-header"><span class="panel-title">Perfil</span></div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="f-nome">Nome completo</label>
+            <input id="f-nome" type="text" placeholder="Seu nome" />
+          </div>
+          <div class="form-row">
+            <label for="f-email">E-mail</label>
+            <input id="f-email" type="email" disabled />
+            <span class="form-hint">O e-mail de acesso não pode ser alterado por aqui.</span>
+          </div>
+          <div class="form-row">
+            <label for="f-empresa">Empresa</label>
+            <input id="f-empresa" type="text" disabled />
+          </div>
+          <div><button class="btn-app primary" id="save-profile">Salvar perfil</button></div>
+        </div>
+      </div>
+
+      <!-- Segurança -->
+      <div class="panel settings-section">
+        <div class="panel-header"><span class="panel-title">Segurança</span></div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="f-senha">Nova senha</label>
+            <input id="f-senha" type="password" placeholder="••••••••" />
+            <span class="form-hint">Mínimo de 6 caracteres.</span>
+          </div>
+          <div class="form-row">
+            <label for="f-senha2">Confirmar nova senha</label>
+            <input id="f-senha2" type="password" placeholder="••••••••" />
+          </div>
+          <div><button class="btn-app primary" id="save-password">Atualizar senha</button></div>
+        </div>
+      </div>
+
+      <!-- Preferências -->
+      <div class="panel settings-section">
+        <div class="panel-header"><span class="panel-title">Preferências de notificação</span></div>
+        <div class="toggle-row">
+          <div><div class="t-label">E-mails de progresso</div><div class="t-desc">Resumo semanal do desempenho da equipe.</div></div>
+          <input type="checkbox" checked />
+        </div>
+        <div class="toggle-row">
+          <div><div class="t-label">Alertas de vencimento</div><div class="t-desc">Avisar quando uma certificação estiver perto de expirar.</div></div>
+          <input type="checkbox" checked />
+        </div>
+        <div class="toggle-row">
+          <div><div class="t-label">Novidades da plataforma</div><div class="t-desc">Receber comunicados sobre novos cursos.</div></div>
+          <input type="checkbox" />
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { requireAuth, logout, getProfile } from '../js/auth/session.js'
+    import { supabase } from '../js/config/supabase.js'
+
+    await requireAuth()
+    document.getElementById('logout-btn').onclick = logout
+
+    // Carrega perfil
+    const profile = await getProfile()
+    if (profile) {
+      document.getElementById('f-nome').value = profile.full_name || ''
+      document.getElementById('f-email').value = profile.email || ''
+      document.getElementById('f-empresa').value = profile.companies?.name || '—'
+    }
+
+    // Salvar perfil
+    document.getElementById('save-profile').onclick = async () => {
+      const full_name = document.getElementById('f-nome').value.trim()
+      if (!full_name) return alert('Informe o nome.')
+      const { data: { user } } = await supabase.auth.getUser()
+      const { error } = await supabase.from('profiles').update({ full_name }).eq('id', user.id)
+      alert(error ? 'Erro ao salvar: ' + error.message : 'Perfil atualizado com sucesso.')
+    }
+
+    // Atualizar senha
+    document.getElementById('save-password').onclick = async () => {
+      const s1 = document.getElementById('f-senha').value
+      const s2 = document.getElementById('f-senha2').value
+      if (s1.length < 6) return alert('A senha deve ter ao menos 6 caracteres.')
+      if (s1 !== s2) return alert('As senhas não conferem.')
+      const { error } = await supabase.auth.updateUser({ password: s1 })
+      alert(error ? 'Erro: ' + error.message : 'Senha atualizada com sucesso.')
+      if (!error) { document.getElementById('f-senha').value = ''; document.getElementById('f-senha2').value = '' }
+    }
+  </script>
+</body>
+</html>

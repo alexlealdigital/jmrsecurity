@@ -1,0 +1,154 @@
+<!-- ============================================ -->
+<!-- RELATÓRIOS - src/pages/relatorios.html -->
+<!-- ============================================ -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatórios - JMR Security</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .rank { font-family: var(--font-display); font-weight: 800; color: var(--text-faint); }
+    .rank.gold { color: var(--green); }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">JMR <span>Security</span></div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="empresas.html">Gestão de Empresas</a></li>
+          <li><a href="meus-cursos.html">Meus Cursos</a></li>
+          <li><a href="colaboradores.html">Colaboradores</a></li>
+          <li><a href="relatorios.html" class="active">Relatórios</a></li>
+          <li><a href="avaliacao.html">Avaliação</a></li>
+          <li><a href="ranking.html">Ranking</a></li>
+          <li><a href="configuracoes.html">Configurações</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="logout-btn-sidebar">Sair da conta</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Relatórios de Desempenho</h1>
+          <p>Acompanhe o progresso dos alunos e métricas dos cursos.</p>
+        </div>
+      </div>
+
+      <!-- Métricas -->
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-label">Total de alunos</div><div class="metric-value">1.247</div><div class="metric-change positive">↑ +12% este mês</div></div>
+        <div class="metric-card"><div class="metric-label">Taxa de conclusão</div><div class="metric-value">78,4%</div><div class="metric-change positive">↑ +5,2% vs mês anterior</div></div>
+        <div class="metric-card"><div class="metric-label">Nota média</div><div class="metric-value">8,7</div><div class="metric-change positive">↑ +0,3 pontos</div></div>
+        <div class="metric-card"><div class="metric-label">Tempo médio</div><div class="metric-value">18h</div><div class="metric-change negative">↓ -2h vs meta</div></div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">Desempenho dos alunos por módulo</span>
+            <select class="chart-filter"><option>Últimos 6 meses</option><option>Último ano</option><option>Todo período</option></select>
+          </div>
+          <div class="chart-container"><canvas id="performanceChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><span class="chart-title">Distribuição de notas</span></div>
+          <div class="chart-container pie"><canvas id="gradesChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Ranking -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Top performers — Segurança da Informação</span>
+          <select class="chart-filter"><option>Este mês</option><option>Este ano</option><option>Todo período</option></select>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Rank</th><th>Aluno</th><th>Progresso</th><th>Nota final</th><th>Tempo estudado</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="rank gold">#1</span></td>
+              <td><div class="user-cell"><div class="avatar">CS</div><span style="color:var(--text-primary)">Carlos Eduardo Santos</span></div></td>
+              <td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div><span style="font-size:13px;color:var(--text-muted)">100%</span></div></td>
+              <td style="color:var(--green);font-weight:700">9,8</td><td>32h 15min</td><td><span class="tag green">Excelente</span></td>
+            </tr>
+            <tr>
+              <td><span class="rank">#2</span></td>
+              <td><div class="user-cell"><div class="avatar">AF</div><span style="color:var(--text-primary)">Ana Paula Ferreira</span></div></td>
+              <td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-bar"><div class="progress-fill" style="width:92%"></div></div><span style="font-size:13px;color:var(--text-muted)">92%</span></div></td>
+              <td style="color:var(--green);font-weight:700">9,5</td><td>28h 42min</td><td><span class="tag green">Muito bom</span></td>
+            </tr>
+            <tr>
+              <td><span class="rank">#3</span></td>
+              <td><div class="user-cell"><div class="avatar">RL</div><span style="color:var(--text-primary)">Roberto Lima Oliveira</span></div></td>
+              <td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-bar"><div class="progress-fill" style="width:87%"></div></div><span style="font-size:13px;color:var(--text-muted)">87%</span></div></td>
+              <td style="color:#fbbf24;font-weight:700">8,9</td><td>25h 10min</td><td><span class="tag warn">Bom</span></td>
+            </tr>
+            <tr>
+              <td><span class="rank">#4</span></td>
+              <td><div class="user-cell"><div class="avatar">MS</div><span style="color:var(--text-primary)">Mariana Souza</span></div></td>
+              <td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-bar"><div class="progress-fill" style="width:74%"></div></div><span style="font-size:13px;color:var(--text-muted)">74%</span></div></td>
+              <td style="color:#fbbf24;font-weight:700">8,2</td><td>21h 33min</td><td><span class="tag muted">Regular</span></td>
+            </tr>
+            <tr>
+              <td><span class="rank">#5</span></td>
+              <td><div class="user-cell"><div class="avatar">JP</div><span style="color:var(--text-primary)">João Pedro Almeida</span></div></td>
+              <td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-bar"><div class="progress-fill" style="width:68%"></div></div><span style="font-size:13px;color:var(--text-muted)">68%</span></div></td>
+              <td style="color:var(--red);font-weight:700">7,5</td><td>19h 20min</td><td><span class="tag muted">Em recuperação</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { requireRole, logout } from '../js/auth/session.js'
+    await requireRole('admin', 'gestor')
+    document.getElementById('logout-btn').onclick = logout
+
+    const GREEN = '#00FF41', GRID = '#1F2937', TEXT = '#9CA3AF'
+
+    // Barras — desempenho por módulo
+    new Chart(document.getElementById('performanceChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Fundamentos', 'Criptografia', 'Firewall', 'LGPD', 'Gestão de Riscos', 'Resp. Incidentes'],
+        datasets: [
+          { label: 'Nota média', data: [8.5,7.2,8.9,9.1,7.8,8.4], backgroundColor: GREEN, borderRadius: 6 },
+          { label: 'Meta', data: [8,8,8,8,8,8], backgroundColor: '#1F2937', borderRadius: 6 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: TEXT } } },
+        scales: { y: { beginAtZero: true, max: 10, ticks: { color: TEXT }, grid: { color: GRID } }, x: { ticks: { color: TEXT }, grid: { display: false } } }
+      }
+    })
+
+    // Rosca — distribuição de notas (estava faltando no arquivo original)
+    new Chart(document.getElementById('gradesChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['9–10', '8–8,9', '7–7,9', 'Abaixo de 7'],
+        datasets: [{ data: [42, 31, 18, 9], backgroundColor: [GREEN, '#1aa436', '#fbbf24', '#F87171'], borderColor: '#0D0D0D', borderWidth: 3 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { color: TEXT, padding: 14 } } } }
+    })
+  </script>
+</body>
+</html>
